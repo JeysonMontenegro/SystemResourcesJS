@@ -1,0 +1,225 @@
+<hmtl>
+<head>
+  	<title>Practica2 201211472</title>
+  	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="http://code.jquery.com/jquery.js"></script>
+	<script type="text/javascript" src="/javascripts/canvasjs.min.js"></script>
+
+
+
+
+</head>
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Practica2_201211472</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/MR">Monitor Ram</a></li>
+            <li><a href="/MC">Monitor CPU</a></li>
+            <li><a href="/MP">Monitor Procesos</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<div class="container">
+		<div class="panel panel-primary">
+ 		 <!-- Default panel contents -->
+ 		<div class="panel-heading">Uso Ram Actual</div>
+
+  		<!-- Table -->
+  		<table class="table">
+			<col width="70%">
+		         <tr>
+			<td>
+				<div id="chartContainer" style="height: 400px; width:90%;"></div>
+			</td>
+			<td>
+				<div class="panel panel-info">
+ 				 <!-- Default panel contents -->
+ 				<div class="panel-heading">Uso Ram Actual</div>
+	
+ 		 		<!-- Table -->
+ 		 		<table class="table">
+					<tr>
+						<td>
+						      <div class="panel panel-default">
+							<div class="panel-heading">Total MB</div>
+								<table class="table">
+									<tr>
+										
+										<form id="TotalForm" class="input-group" style= "text-align:center; margin:0 auto ;">
+											<div id="total" class="panel-body"> 
+
+											</div> 
+
+										
+										</form>
+									
+									</tr>
+								</table>
+							</div>
+						</td>
+					<tr/>
+					<tr>
+						<td>
+								<div class="panel panel-default">
+							<div class="panel-heading">Utilizado MB</div>
+								<table class="table">
+									<tr>
+										
+										<form id="UtilizadoForm" class="input-group" style= "text-align:center; margin:0 auto ;">
+											<div id="utilizado" class="panel-body"> 
+
+											</div> 
+
+										
+										</form>
+									
+									</tr>
+								</table>
+							</div>
+						</td>
+					<tr/>
+						<tr>
+						<td>
+								<div class="panel panel-default">
+							<div class="panel-heading">Utilizacion %</div>
+								<table class="table">
+									<tr>
+										
+										<form id="UtilizacionForm" class="input-group" style= "text-align:center; margin:0 auto ;">
+											<div id="utilizacion" class="panel-body"> 
+
+											</div> 
+
+										
+										</form>
+									
+									</tr>
+								</table>
+							</div>
+						</td>
+					<tr/>
+  				</table>
+				</div>
+			</td>
+		<tr/>
+  		</table>
+		</div>
+	</div>
+	<footer class="footer">
+    	<div class="container">  Copyright ©  JSCoproration 2015</div>
+	</footer>
+  </body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	$(document).ready(function(){
+	var socket = io.connect('');
+	var $total=$('#total');	
+	var $utilizado=$('#utilizado');
+	var $utilizacion=$('#utilizacion');
+	var Porcentaje=0.0;
+	var MBTotal=0.0;
+	var MBUtilizado=0.0;
+	var graf=0;
+		setInterval(function(){
+	
+	
+        socket.emit('RAM', { my: 'data' });
+	
+	console.log('data');
+        socket.on('RAMOK', function (data1) {
+			//console.log(data1);
+			//alert(data1.msg);
+			var array = data1.msg.split('\n')
+			
+			var memtotal0 = array[0].trim().split(':');
+			var memfree0 = array[1].trim().split(':');
+			var cached0 = array[3].trim().split(':');
+			var memtotal=memtotal0[1].replace("kB", "");
+			var memfree=memfree0[1].replace("kB", "");
+			var cached=cached0[1].replace("kB", "");				
+			memfree=parseFloat(memfree)*0.001;
+			
+			memtotal=parseFloat(memtotal)*0.001;
+			cached=parseFloat(cached)*0.001;
+			
+			MBUtilizado=memtotal-(memfree+cached);
+			Porcentaje= ((memtotal-(memfree+cached))/memtotal)*100;	
+			memfree=memfree.toFixed(2);
+			MBTotal=MBUtilizado.toFixed(2);
+			graf=Porcentaje;
+			Porcentaje=Porcentaje.toFixed(2);
+			$total.text(memtotal);		
+			$utilizado.text(MBTotal);
+			$utilizacion.text(Porcentaje);
+			//$total.text(MBTotal);
+		        //$utilizado.text(MBUtilizado);
+			//
+		});
+			updateChart(graf);
+
+		},1000);
+		var dps = []; // dataPoints
+
+		var chart = new CanvasJS.Chart("chartContainer",{
+			title :{
+				text: "Utilizacion Ram"
+			},	
+		
+			data: [{
+				type: "line",
+				dataPoints: dps 
+			}]
+		});
+
+		var xVal = 0;
+		//var yVal = 100;	
+		var updateInterval = 20;
+		var dataLength = 15; // number of dataPoints visible at any point
+
+		var updateChart = function (Vy) {
+				dps.push({
+					x: xVal,
+					y: Vy
+				});
+				xVal++;
+		
+			if (dps.length > dataLength)
+			{
+				dps.shift();				
+			}
+			
+			chart.render();		
+
+		};
+		
+});
+	
+
+        
+</script>
+</html>

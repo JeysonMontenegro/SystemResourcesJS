@@ -1,0 +1,229 @@
+<hmtl>
+<head>
+  	<title>Practica2 201211472</title>
+  	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="http://code.jquery.com/jquery.js"></script>
+	<script type="text/javascript" src="/javascripts/canvasjs.min.js"></script>
+	<script>
+			//$('#my_table').click(function(e){
+    			//alert($(e.target).text()); // using jQuery
+			//});
+//onload = function() {
+  //  if (!document.getElementsByTagName || !document.createTextNode) return;
+   // var rows = document.getElementById('my_table').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    //for (i = 0; i < rows.length; i++) {
+     //   rows[i].onclick = function() {
+      //      alert(this.rowIndex + 1);
+    //    }
+  //  }
+//}
+
+
+</script>
+
+
+
+
+
+</head>
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Practica2_201211472</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/MR">Monitor Ram</a></li>
+            <li><a href="/MC">Monitor CPU</a></li>
+            <li><a href="/MP">Monitor Procesos</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+
+
+	<table class="table">
+	<tr>
+	<td>
+	        <div class="container">
+		<div class="panel panel-primary">
+ 		 <!-- Default panel contents -->
+ 		<div class="panel-heading">PROCESOS ACTUALES</div>
+			<table class="table">
+				<tr>
+					<td>
+						<div class="panel panel-success">
+							<div class="panel-heading">Procesos</div>
+								<table class="table">
+									<tr>
+									<td>
+										<div id="procesos" class="panel-body"> 
+										</div> 
+									</td>
+									</tr>
+								</table>
+					</td>
+					<td>
+						<div class="panel panel-success">
+							<div class="panel-heading">Ejecucion</div>
+								<table class="table">
+									<tr>
+									<td>
+										<div id="ejecucion" class="panel-body"> 
+										</div> 
+									</td>
+									</tr>
+								</table>
+					</td>
+					<td>
+						<div class="panel panel-success">
+							<div class="panel-heading">Suspendidos</div>
+								<table class="table">
+									<tr>
+									<td>
+										<div id="suspendidos" class="panel-body"> 
+										</div> 
+									</td>
+									</tr>
+								</table>
+					</td>
+					<td>
+						<div class="panel panel-success">
+							<div class="panel-heading">Detenidos</div>
+								<table class="table">
+									<tr>
+									<td>
+										<div id="detenidos" class="panel-body"> 
+										</div> 
+									</td>
+									</tr>
+								</table>
+					</td>
+					<td>
+						<div class="panel panel-success">
+							<div class="panel-heading">Zombie</div>
+								<table class="table">
+									<tr>
+									<td>
+										<div id="zombie" class="panel-body"> 
+										</div> 
+									</td>
+									</tr>
+								</table>
+					</td>
+								
+				</tr>
+			</table>
+  		
+		</div>
+	</div>
+	</td>
+	</tr>
+	<tr>
+	<td>
+	<div class="container">
+		<div class="panel panel-primary">
+ 		 <!-- Default panel contents -->
+ 		<div class="panel-heading">PROCESOS ACTUALES</div>
+			
+			<table id="my_table" class="table table-striped">
+				<thead><tr><th>PD1</th><th>Usuario</th><th>Estado</th><th>%CPU</th><th>%RAM</th><th>Nombre</th></tr></thead>
+				
+				<tbody>
+  			
+  				</tbody>
+			</table>
+  		
+		</div>
+	</div>
+	</td>
+	</tr>
+
+	</table>	
+
+  </body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+$(document.createElement('my_table'));
+	var $procesos=$('#procesos');
+	var $ejecucion=$('#ejecucion');
+	var $suspedidos=$('#suspendidos');
+	var $detenidos=$('#detenidos');
+	var $zombie=$('#zombie');	
+	var i=5;
+	var socket = io.connect('');
+	$(document).ready(function(){	
+	setInterval(function(){
+	//socket.emit('SUMMARY', { my: 'data' });
+        socket.emit('PROC', { my: 'data' });	
+        console.log('data');
+     },2000);
+		
+	});
+
+         socket.on('PROCESOSOK', function (data1) {
+
+
+	$('#my_table').empty();
+	$('#my_table').prepend('<thead><tr><th>PID</th><th>Usuario</th><th>Estado</th><th>%CPU</th><th>%RAM</th><th>Nombre</th><th>Kill Process</th></tr></thead>');
+	var row=data1.msg.split('\n');
+	var i=0;
+	var col=0;
+	var len=row.length;	
+	for(i=0;i<len-1;i++){
+		col=row[i].split('$');
+		$('#my_table').append('<tr><td>'+col[0]+'</td><td>'+col[1]+'</td><td>'+col[2]+'</td><td>'+col[3]+'</td><td>'+col[4]+'</td><td>'+col[5]+'</td><td><button id ="button" type="button" class="btn btn-default" onclick="KILL('+i+',\''+ col[0]+'\')" >KILL</button></td></tr>');
+	}
+	});
+
+	       socket.on('SUMMARYOK', function (data1) {
+				var status=data1.msg.split('-');
+				 $procesos.text(status[0]);
+				 $ejecucion.text(status[1]);
+				 $suspedidos.text(status[2]);
+				 $detenidos.text(status[3]);
+				 $zombie.text(status[4]);
+			
+			});
+
+function KILL(posicion,PID){
+	         document.getElementById("my_table").deleteRow(posicion+1);
+		socket.emit('KILL', { msg:PID});
+	
+	}
+$( "#button" ).click(function() {
+
+
+	var socket = io.connect('');
+	setInterval(function(){
+		socket.emit('PROC', { my: 'data' });
+	});	
+});
+	$('#my_table tr:gt(0)').click(function(){
+   		 $(this).toggleClass('selected');
+   		 alert($('td:first', $(this)).html());
+		});
+
+</script>
+</html>

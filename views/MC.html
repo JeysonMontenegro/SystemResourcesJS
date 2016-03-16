@@ -1,0 +1,135 @@
+<hmtl>
+<head>
+  	<title>Practica2 201211472</title>
+  	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="http://code.jquery.com/jquery.js"></script>
+	<script type="text/javascript" src="/javascripts/canvasjs.min.js"></script>
+
+
+
+
+</head>
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Practica2_201211472</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/MR">Monitor Ram</a></li>
+            <li><a href="/MC">Monitor CPU</a></li>
+            <li><a href="/MP">Monitor Procesos</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<div class="container">
+		<div class="panel panel-primary">
+ 		 <!-- Default panel contents -->
+ 		<div class="panel-heading">Uso CPU Actual</div>
+
+  		<!-- Table -->
+  		<table class="table">
+			<col width="70%">
+		         <tr>
+			<td>
+				<div id="chartContainer" style="height: 400px; width:90%;"> </div>
+			</td>
+			<td>
+					
+				<br>
+				<br>
+				<br>
+				<div class="panel panel-info">
+ 				 <!-- Default panel contents -->
+ 				<div class="panel-heading">Uso CPU Actual</div>
+			
+ 		 		<!-- Table -->
+ 		 		<table class="table">
+						<div id="total" class="panel-body"  style="font-size: 20pt"> 
+						</div> 			
+  				</table>
+				</div>
+			</td>
+		<tr/>
+  		</table>
+		</div>
+	</div>
+	
+  </body>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+		$(document).ready(function(){
+	var socket = io.connect('');
+	var $total=$('#total');	
+	var graf=0;
+	setInterval(function(){
+        socket.emit('CPU0', { my: 'data' });
+        socket.on('CPUO0K', function (data1) {
+		graf=parseFloat(data1.msg);
+		$total.text(data1.msg+" %");
+
+		});
+			updateChart(graf);
+
+		},1000);
+		var dps = []; // dataPoints
+
+		var chart = new CanvasJS.Chart("chartContainer",{
+			title :{
+				text: "Utilizacion CPU"
+			},	
+		
+			data: [{
+				type: "line",
+				dataPoints: dps 
+			}]
+		});
+
+		var xVal = 0;
+		//var yVal = 100;	
+		var updateInterval = 20;
+		var dataLength = 15; // number of dataPoints visible at any point
+
+		var updateChart = function (Vy) {
+				dps.push({
+					x: xVal,
+					y: Vy
+				});
+				xVal++;
+		
+			if (dps.length > dataLength)
+			{
+				dps.shift();				
+			}
+			
+			chart.render();		
+
+		};
+		
+});
+	
+</script>
+</html>
